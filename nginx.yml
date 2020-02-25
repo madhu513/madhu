@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  remote_user: ubuntu
+  tasks:
+          - name: deployment
+            shell: kubectl --kubeconfig=/home/ubuntu/.kube/config apply -f /home/ubuntu/deployment.yml
+
+          - name: service
+            shell: kubectl --kubeconfig=/home/ubuntu/.kube/config apply -f /home/ubuntu/service.yml
+
+          - name: expose port
+            shell:  kubectl --kubeconfig=/home/ubuntu/.kube/config expose deploy pipe-deployment --port=8080 --type=LoadBalancer
