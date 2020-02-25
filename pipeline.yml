@@ -1,0 +1,20 @@
+node{
+    stage('git clone'){
+        git 'https://github.com/madhu513/node-app.git'
+    }
+    stage('build maven'){
+       sh 'mvn install' 
+    }
+    stage('docker build'){
+        sh 'docker build -t madhu309/pipe10 .'
+    }
+    stage('docker push'){
+       withCredentials([string(credentialsId: 'docker', variable: 'docker')]) {
+        sh 'docker login -u madhu309 -p ${docker}'
+    }
+        sh 'docker push madhu309/pipe10'
+    }   
+    stage('Ansible With K8s'){
+       sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook /home/ubuntu/nginx.yml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '/home/ubuntu', sourceFiles: '/home/ubuntu/nginx.yml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)]) 
+    }
+}
